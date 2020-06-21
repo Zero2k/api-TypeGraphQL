@@ -1,17 +1,16 @@
-import { Resolver, Arg, Ctx, Mutation } from 'type-graphql';
+import { Resolver, Arg, Mutation } from 'type-graphql';
 import bcrypt from 'bcryptjs';
 import { User } from '../../../entity/User';
 import { InvalidTokenError, PasswordMismatch } from '../shared/user.error';
 import { MoreThan } from 'typeorm';
 import { ResetInput } from '../shared/user.input';
-/* import mailer from '../../../utils/mailer'; */
+import mailer from '../../../utils/mailer';
 
 @Resolver()
 export class ResetResolver {
   @Mutation(() => Boolean)
   async reset(
-    @Arg('input') { token, password, confirm }: ResetInput,
-    @Ctx('url') url: string
+    @Arg('input') { token, password, confirm }: ResetInput
   ): Promise<Boolean> {
     try {
       /* Find user */
@@ -44,14 +43,21 @@ export class ResetResolver {
         to: user.email,
         from: 'passwordreset@demo.com',
         subject: 'Node.js Password Reset',
-        text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
-            Please click on the following link, or paste this into your browser to complete the process:\n\n
-            ${url}/reset/${token}\n\n`
+        text: `You are receiving this because you (or someone else) have reset the password for your account.`
       };
-      body;
 
-      /* Send email with token */
-      /* await mailer(body); */
+      if (process.env.NODE_ENV === 'production') {
+        /* Send email with token */
+        mailer(body)
+          .then(() => {
+            console.log('Email has been sent');
+          })
+          .catch((error) => {
+            console.log(
+              `Failed to send the email. Error: ${error && error.message}`
+            );
+          });
+      }
 
       return true;
     } catch (error) {

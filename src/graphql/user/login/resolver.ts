@@ -14,11 +14,10 @@ import emailIsValid from '../../../utils/emailIsValid';
 @Resolver()
 export class LoginResolver {
   @Mutation(() => LoginResponse)
-  async signIn(@Arg('input')
-  {
-    email,
-    password
-  }: LoginInput): Promise<LoginResponse> {
+  async signIn(
+    @Arg('input')
+    { email, password }: LoginInput
+  ): Promise<LoginResponse> {
     try {
       if (!emailIsValid(email)) {
         throw new InvalidEmailError();

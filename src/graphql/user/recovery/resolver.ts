@@ -2,7 +2,7 @@ import { Resolver, Arg, Ctx, Mutation } from 'type-graphql';
 import crypto from 'crypto';
 import { User } from '../../../entity/User';
 import { NoUserExistsError } from '../shared/user.error';
-/* import mailer from '../../../utils/mailer'; */
+import mailer from '../../../utils/mailer';
 
 @Resolver()
 export class RecoveryResolver {
@@ -38,10 +38,19 @@ export class RecoveryResolver {
             Please click on the following link, or paste this into your browser to complete the process:\n\n
             ${url}/reset/${token}\n\n`
       };
-      body;
 
-      /* Send email with token */
-      /* await mailer(body); */
+      if (process.env.NODE_ENV === 'production') {
+        /* Send email with token */
+        mailer(body)
+          .then(() => {
+            console.log('Email has been sent');
+          })
+          .catch((error) => {
+            console.log(
+              `Failed to send the email. Error: ${error && error.message}`
+            );
+          });
+      }
 
       return true;
     } catch (error) {

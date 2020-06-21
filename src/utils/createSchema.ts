@@ -7,7 +7,7 @@ export const createSchema = () => {
 
   const resolvers = glob
     .sync(`${pathToGraphQL}/**/resolver.?s`)
-    .map(resolver => require(resolver).resolvers);
+    .map((resolver) => require(resolver).resolvers);
 
   return buildSchema({
     resolvers,

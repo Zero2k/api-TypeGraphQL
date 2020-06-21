@@ -1,9 +1,11 @@
+import * as bcrypt from 'bcryptjs';
 import {
   Entity,
   Column,
   BaseEntity,
   PrimaryGeneratedColumn,
-  CreateDateColumn
+  CreateDateColumn,
+  BeforeInsert
 } from 'typeorm';
 import { ObjectType, Field, ID } from 'type-graphql';
 
@@ -34,4 +36,9 @@ export class User extends BaseEntity {
   @Field()
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
+
+  @BeforeInsert()
+  async hashPasswordBeforeInsert() {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
 }
